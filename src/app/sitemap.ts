@@ -1,7 +1,14 @@
 import { MetadataRoute } from 'next';
+import { headers } from 'next/headers';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://tokencounter.ai';
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const headersList = await headers();
+  const host = headersList.get('host') || process.env.VERCEL_URL || 'aitokencounter.vercel.app';
+  const protocol = headersList.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+  
+  // Format clean base URL without trailing slash or duplicate protocol
+  const cleanHost = host.replace(/^https?:\/\//, '');
+  const baseUrl = `${protocol}://${cleanHost}`;
 
   return [
     {
