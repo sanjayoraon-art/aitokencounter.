@@ -1,14 +1,15 @@
 import { MetadataRoute } from 'next';
-import { headers } from 'next/headers';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const headersList = await headers();
-  const host = headersList.get('host') || process.env.VERCEL_URL || 'aitokencounter.vercel.app';
-  const protocol = headersList.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-  
-  // Format clean base URL without trailing slash or duplicate protocol
-  const cleanHost = host.replace(/^https?:\/\//, '');
-  const baseUrl = `${protocol}://${cleanHost}`;
+export const revalidate = 86400; // 24 hours static cache
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const domain =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '') ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+    'https://aitokencounter.vercel.app';
+
+  const baseUrl = domain.replace(/\/$/, '');
 
   return [
     {

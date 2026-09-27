@@ -1,13 +1,15 @@
 import { MetadataRoute } from 'next';
-import { headers } from 'next/headers';
 
-export default async function robots(): Promise<MetadataRoute.Robots> {
-  const headersList = await headers();
-  const host = headersList.get('host') || process.env.VERCEL_URL || 'aitokencounter.vercel.app';
-  const protocol = headersList.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+export const revalidate = 86400;
 
-  const cleanHost = host.replace(/^https?:\/\//, '');
-  const baseUrl = `${protocol}://${cleanHost}`;
+export default function robots(): MetadataRoute.Robots {
+  const domain =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '') ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+    'https://aitokencounter.vercel.app';
+
+  const baseUrl = domain.replace(/\/$/, '');
 
   return {
     rules: {
